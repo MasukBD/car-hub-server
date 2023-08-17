@@ -27,6 +27,17 @@ async function run() {
         await client.connect();
 
         const serviceCollection = client.db('CarHubDB').collection('services');
+        const productCollection = client.db('CarHubDB').collection('Products');
+        const serviceOrderCollection = client.db('CarHubDB').collection('orderList');
+
+        // Product Area
+        app.get('/products', async (req, res) => {
+            const cursor = productCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // Service Area 
         app.get('/services', async (req, res) => {
             const cursor = serviceCollection.find();
             const result = await cursor.toArray();
@@ -38,9 +49,16 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const options = {
                 // Include only the `title` and `imdb` fields in the returned document
-                projection: { title: 1, price: 1, service_id: 1, description: 1 },
+                projection: { title: 1, price: 1, service_id: 1, img: 1 },
             };
             const result = await serviceCollection.findOne(query, options);
+            res.send(result);
+        });
+
+        // Order Handle Area 
+        app.post('/orders', async (req, res) => {
+            const singleOrder = req.body;
+            const result = await serviceOrderCollection.insertOne(singleOrder);
             res.send(result);
         })
         // Send a ping to confirm a successful connection
