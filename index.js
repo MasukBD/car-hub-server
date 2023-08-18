@@ -31,6 +31,7 @@ async function run() {
         const serviceOrderCollection = client.db('CarHubDB').collection('orderList');
 
         // Product Area
+
         app.get('/products', async (req, res) => {
             const cursor = productCollection.find();
             const result = await cursor.toArray();
@@ -38,6 +39,7 @@ async function run() {
         })
 
         // Service Area 
+
         app.get('/services', async (req, res) => {
             const cursor = serviceCollection.find();
             const result = await cursor.toArray();
@@ -56,9 +58,43 @@ async function run() {
         });
 
         // Order Handle Area 
+
+        // get specific data by logged in user
+        app.get('/orders', async (req, res) => {
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const cursor = serviceOrderCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+
         app.post('/orders', async (req, res) => {
             const singleOrder = req.body;
             const result = await serviceOrderCollection.insertOne(singleOrder);
+            res.send(result);
+        });
+
+        app.patch('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedInput = req.body;
+            const query = { _id: new ObjectId(id) };
+            // const options = { upsert: true }; we should not use upsert true for patch
+            const updateOrder = {
+                $set: {
+                    status: updatedInput.status
+                },
+            };
+            const result = await serviceOrderCollection.updateOne(query, updateOrder);
+            res.send(result);
+        })
+
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await serviceOrderCollection.deleteOne(query);
             res.send(result);
         })
         // Send a ping to confirm a successful connection
