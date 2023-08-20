@@ -1,6 +1,7 @@
 const express = require('express')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 const app = express()
 const port = process.env.PORT || 5000;
 const cors = require('cors');
@@ -29,6 +30,14 @@ async function run() {
         const serviceCollection = client.db('CarHubDB').collection('services');
         const productCollection = client.db('CarHubDB').collection('Products');
         const serviceOrderCollection = client.db('CarHubDB').collection('orderList');
+
+        // jwt area 
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
+            res.send({ token });
+        })
+
 
         // Product Area
 
@@ -97,6 +106,8 @@ async function run() {
             const result = await serviceOrderCollection.deleteOne(query);
             res.send(result);
         })
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
