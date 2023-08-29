@@ -41,7 +41,7 @@ const verifyJWT = (req, res, next) => {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        client.connect();
 
         const serviceCollection = client.db('CarHubDB').collection('services');
         const productCollection = client.db('CarHubDB').collection('Products');
